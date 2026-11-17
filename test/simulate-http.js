@@ -4,13 +4,32 @@
 
 const path = require('path');
 const fs = require('fs');
+const net = require('net');
 const { spawn } = require('child_process');
 
 const ROOT = path.resolve(__dirname, '..');
 const NODE = process.execPath;
-const PORT = 8123;
 const DATA = path.join(__dirname, '.httpdata');
-const BASE = `http://127.0.0.1:${PORT}`;
+
+/* 端口从 8123 起找一个空闲的：本机若正好有别的服务占着 8123，不会误连上去。
+ * 想固定端口就设环境变量 RC_TEST_PORT。 */
+let PORT = Number(process.env.RC_TEST_PORT) || 0;
+let BASE = '';
+
+function freePort(from) {
+  return new Promise((resolve, reject) => {
+    const srv = net.createServer();
+    srv.once('error', (e) => {
+      if (e.code === 'EADDRINUSE' && from < from + 200) resolve(freePort(from + 1));
+      else reject(e);
+    });
+    srv.once('listening', () => {
+      const p = srv.address().port;
+      srv.close(() => resolve(p));
+    });
+    srv.listen(from, '127.0.0.1');
+  });
+}
 
 let pass = 0;
 const fails = [];
@@ -34,6 +53,8 @@ async function call(method, p, body, headers) {
 }
 
 async function main() {
+  if (!PORT) PORT = await freePort(8123);
+  BASE = `http://127.0.0.1:${PORT}`;
   fs.rmSync(DATA, { recursive: true, force: true });
   const child = spawn(NODE, [path.join(ROOT, 'server.js')], {
     cwd: ROOT,
@@ -143,8 +164,14 @@ async function main() {
     }, { Authorization: 'Bearer ' + others[0].token });
     eq(r403.status, 403, '非场风盘设备操作被拒', r403.status);
   } finally {
-    child.kill();
-    await new Promise((r) => setTimeout(r, 300));
+    // Windows 上 SIGTERM 不保证立刻结束进程，之前留下过占着端口的僵尸服务，
+    // 这里直接 SIGKILL 并等它真的退出。
+    try { child.kill('SIGKILL'); } catch (e) { /* ignore */ }
+    await new Promise((resolve) => {
+      if (child.exitCode !== null) return resolve();
+      child.once('exit', resolve);
+      setTimeout(resolve, 2000);
+    });
     try { fs.rmSync(DATA, { recursive: true, force: true }); } catch (e) { /* ignore */ }
   }
 }

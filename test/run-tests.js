@@ -515,7 +515,8 @@ async function testHttp() {
   const nm = 'dup' + Date.now().toString(36);
   await j('/api/auth/register', { method: 'POST', body: { name: nm, password: 'pass1234' } });
   r = await j('/api/auth/register', { method: 'POST', body: { name: nm, password: 'pass1234' } });
-  ok(r.status >= 400, '重复昵称注册被拒绝');
+  ok(r.status === 400, '重复昵称返回 400（不是 500）', r.status);
+  ok(/已被注册/.test(r.body.error || ''), '重复昵称的提示能直接展示', r.body.error);
 
   r = await j('/api/auth/login', { method: 'POST', body: { name: nm, password: 'wrong' } });
   ok(r.status === 401, '错误密码登录被拒绝');
@@ -524,7 +525,10 @@ async function testHttp() {
   ok(r.body.ok && r.body.token, '正确密码登录成功', r.body);
 
   r = await j('/api/auth/register', { method: 'POST', body: { name: 'x', password: '123' } });
-  ok(r.status >= 400, '过短密码被拒绝');
+  ok(r.status === 400, '过短密码返回 400（不是 500）', r.status);
+
+  r = await j('/api/auth/register', { method: 'POST', body: { name: '', password: 'pass1234' } });
+  ok(r.status === 400, '空昵称返回 400', r.status);
 
   const H = (t) => ({ 'Content-Type': 'application/json', Authorization: 'Bearer ' + t });
 
