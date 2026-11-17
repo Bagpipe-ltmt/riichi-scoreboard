@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0d3b2e">
+<title>录入一局 · 立直麻将</title>
+<link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+
+<div class="topbar">
+  <span class="title gold">录入一局</span>
+  <span class="spacer"></span>
+  <span class="pill" id="userPill">未登录</span>
+  <button class="btn sm ghost hidden" id="btnLogout">退出登录</button>
+  <a class="btn sm ghost" href="/">首页</a>
+</div>
+
+<div class="wrap" style="max-width:620px">
+
+  <!-- ============ 登录 ============ -->
+  <section id="authView" class="hidden">
+    <div class="card" style="margin-top:16px">
+      <h3 style="margin:0 0 6px">先登录</h3>
+      <div class="muted small" style="margin-bottom:12px">对局记录要存进你的账号，所以得先登录。（没有账号就点「注册新账号」，密码至少 4 位。）</div>
+      <div class="field"><label>昵称</label><input class="input" id="auName" autocomplete="username" maxlength="16" placeholder="1~16 个字符"></div>
+      <div class="field"><label>密码</label><input class="input" id="auPass" type="password" autocomplete="current-password" placeholder="至少 4 位"></div>
+      <div class="row">
+        <button class="btn primary" id="btnLogin">登录</button>
+        <button class="btn ghost" id="btnRegister">注册新账号</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 录入 ============ -->
+  <section id="formView" class="hidden">
+    <div class="card" style="margin-top:16px">
+      <h3 style="margin:0 0 6px">最终点数</h3>
+      <div class="muted small" style="margin-bottom:12px">已经打完一局、不想一手一手记？把四家最终点数填进来，直接存成对局记录。点数可以是负数（被击飞就是负的）。</div>
+
+      <div class="field">
+        <label>对局形式</label>
+        <div class="seg" id="segType">
+          <div class="opt on wide" data-t="hanchan">半庄战（南四局）</div>
+          <div class="opt wide" data-t="tonpuusen">东风战（东四局）</div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>起始点数</label>
+        <input class="input mono" id="startScore" inputmode="numeric" value="25000">
+      </div>
+
+      <div class="field">
+        <label>四家最终点数</label>
+        <div id="playerRows"></div>
+      </div>
+
+      <div class="field">
+        <label>备注（可选）</label>
+        <input class="input" id="note" maxlength="60" placeholder="例如：雀庄 3 楼 · 桌上那局">
+      </div>
+
+      <div class="card" style="background:rgba(0,0,0,.25);margin:0 0 12px">
+        <div class="small" id="preview">—</div>
+      </div>
+
+      <button class="btn gold block" id="btnSave">保存这局记录</button>
+      <div class="muted tiny" style="margin-top:10px">昵称如果和已注册账号一致，这一局会自动存进那个账号的历史里。</div>
+    </div>
+
+    <div class="card hidden" id="doneCard" style="margin-top:14px">
+      <h3 style="margin:0 0 10px;font-size:16px" class="gold">已保存</h3>
+      <div id="doneBody"></div>
+      <div class="row" style="margin-top:14px">
+        <button class="btn primary" id="btnAgain">再录一局</button>
+        <a class="btn ghost" href="/player" style="text-align:center">去玩家端看历史</a>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script src="/js/common.js"></script>
+<script src="/js/record.js"></script>
+</body>
+</html>

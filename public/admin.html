@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0d3b2e">
+<title>管理员端 · 立直麻将</title>
+<link rel="stylesheet" href="/css/app.css">
+<style>
+  .adm-grid { display: grid; gap: 14px; }
+  .adm-scroll { overflow-x: auto; }
+  .adm-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .adm-table th, .adm-table td { padding: 8px 10px; border-bottom: 1px solid var(--line); white-space: nowrap; text-align: left; }
+  .adm-table th { font-size: 12px; color: var(--muted); font-weight: 600; background: rgba(0,0,0,.18); position: sticky; top: 0; }
+  .adm-table tbody tr:hover { background: rgba(255,255,255,.045); }
+  .adm-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+  .adm-table .r1 { color: var(--gold-2); font-weight: 700; }
+  .adm-table .code { font-variant-numeric: tabular-nums; letter-spacing: 1px; font-weight: 700; }
+  .adm-kpi { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; }
+  .adm-kpi .kpi { padding: 12px; border-radius: 12px; background: rgba(0,0,0,.22); border: 1px solid var(--line); }
+  .adm-kpi .kpi .k { font-size: 12px; color: var(--muted); }
+  .adm-kpi .kpi .v { font-size: 24px; font-weight: 800; font-variant-numeric: tabular-nums; margin-top: 2px; }
+  .adm-kpi .kpi .v.sm { font-size: 15px; font-weight: 700; }
+  .adm-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin: 4px 0 12px; }
+  .adm-tabs .tab { padding: 8px 16px; border-radius: 10px; border: 1px solid var(--line); background: rgba(255,255,255,.05); cursor: pointer; font-size: 14px; }
+  .adm-tabs .tab.on { background: linear-gradient(180deg, var(--gold-2), #c99b2e); color: #2a1c00; font-weight: 700; border-color: rgba(0,0,0,.25); }
+  .adm-filters { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; margin-bottom: 12px; }
+  .adm-filters .f { display: flex; flex-direction: column; gap: 5px; }
+  .adm-filters .f > span { font-size: 12px; color: var(--muted); }
+  .adm-filters .f .input { min-height: 40px; }
+  .adm-filters .grow { flex: 1 1 220px; }
+  .adm-empty { padding: 26px 10px; text-align: center; color: var(--muted); }
+  .adm-hand { padding: 7px 0; border-bottom: 1px dashed var(--line); font-size: 13px; display: flex; gap: 10px; }
+  .adm-hand .r { flex: 0 0 92px; color: var(--muted); }
+  .adm-card { max-height: 62vh; overflow: auto; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <span class="title gold">管理员端</span>
+  <span class="pill" id="whoPill">未登录</span>
+  <span class="spacer"></span>
+  <button class="btn sm ghost hidden" id="btnExport">导出 CSV</button>
+  <button class="btn sm ghost hidden" id="btnRefresh">刷新</button>
+  <button class="btn sm ghost hidden" id="btnPasswd">改密码</button>
+  <button class="btn sm ghost hidden" id="btnLogout">退出登录</button>
+  <a class="btn sm ghost" href="/">首页</a>
+</div>
+
+<!-- 登录 -->
+<div class="wrap" id="loginView">
+  <div class="card" style="max-width:420px;margin:40px auto">
+    <h2 style="margin:0 0 6px;font-size:20px">管理员登录</h2>
+    <p class="muted small" style="margin:0 0 16px">
+      只有管理员账号能看全站对局记录。初始密码在服务器的
+      <code class="mono">data/admin-password.txt</code> 里。
+    </p>
+    <div class="field">
+      <label>账号</label>
+      <input class="input" id="auName" autocomplete="username" placeholder="admin">
+    </div>
+    <div class="field">
+      <label>密码</label>
+      <input class="input" id="auPass" type="password" autocomplete="current-password" placeholder="密码">
+    </div>
+    <button class="btn primary block" id="btnLogin">登录</button>
+    <p class="tiny muted" style="margin:12px 0 0" id="loginMsg"></p>
+  </div>
+</div>
+
+<!-- 主体 -->
+<div class="wrap hidden" id="mainView">
+  <div class="adm-tabs">
+    <div class="tab on" data-tab="overview">概览</div>
+    <div class="tab" data-tab="games">对局记录</div>
+    <div class="tab" data-tab="players">玩家统计</div>
+    <div class="tab" data-tab="rooms">房间</div>
+  </div>
+
+  <!-- 概览 -->
+  <section id="tab-overview">
+    <div class="card">
+      <div class="adm-kpi" id="kpis"></div>
+    </div>
+  </section>
+
+  <!-- 对局记录 -->
+  <section id="tab-games" class="hidden">
+    <div class="card">
+      <div class="adm-filters">
+        <label class="f grow">
+          <span>搜索（玩家名 / 房间号 / 主持 / 终局原因）</span>
+          <input class="input" id="fq" placeholder="例如：老王 或 6794">
+        </label>
+        <label class="f">
+          <span>起始日期</span>
+          <input class="input" id="fFrom" type="date">
+        </label>
+        <label class="f">
+          <span>结束日期</span>
+          <input class="input" id="fTo" type="date">
+        </label>
+        <button class="btn sm" id="btnSearch">查询</button>
+        <button class="btn sm ghost" id="btnReset">清空</button>
+      </div>
+      <div class="adm-scroll">
+        <table class="adm-table" id="gamesTable">
+          <thead>
+            <tr>
+              <th>结束时间</th><th>房间</th><th>形式</th><th class="num">局数</th><th>终局原因</th>
+              <th>1位</th><th class="num">点数</th>
+              <th>2位</th><th class="num">点数</th>
+              <th>3位</th><th class="num">点数</th>
+              <th>4位</th><th class="num">点数</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="gamesBody"></tbody>
+        </table>
+      </div>
+      <div class="row" style="margin-top:12px;align-items:center">
+        <span class="small muted" id="gamesCount"></span>
+        <button class="btn sm ghost" id="btnMore">加载更多</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 玩家统计 -->
+  <section id="tab-players" class="hidden">
+    <div class="card">
+      <div class="adm-scroll">
+        <table class="adm-table">
+          <thead>
+            <tr>
+              <th>玩家</th><th class="num">对局</th><th class="num">一位</th><th class="num">二位</th>
+              <th class="num">三位</th><th class="num">四位</th><th class="num">平均顺位</th>
+              <th class="num">和了次数</th><th class="num">平均点数</th><th>最近一局</th>
+            </tr>
+          </thead>
+          <tbody id="playersBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- 房间 -->
+  <section id="tab-rooms" class="hidden">
+    <div class="card">
+      <p class="small muted" style="margin:0 0 10px">当前服务器上的房间（含进行中的）。</p>
+      <div class="adm-scroll">
+        <table class="adm-table">
+          <thead>
+            <tr><th>房间号</th><th>状态</th><th>主持</th><th>局</th><th class="num">已打局数</th><th>四家</th><th>操作</th></tr>
+          </thead>
+          <tbody id="roomsBody"></tbody>
+        </table>
+      </div>
+      <p class="tiny muted" style="margin:10px 0 0">「结束对局」会按当前点数结算并存成一条对局记录（大厅阶段则直接关掉房间）；「关闭房间」不结算、不存档，5 台设备会立刻退出。</p>
+    </div>
+  </section>
+</div>
+
+<script src="/js/common.js"></script>
+<script src="/js/admin.js"></script>
+</body>
+</html>

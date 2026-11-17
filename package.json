@@ -1,0 +1,18 @@
+{
+  "name": "riichi-scoreboard",
+  "version": "1.0.0",
+  "private": true,
+  "description": "立直麻将 场风盘 —— 5台移动设备（1台场风盘 + 4台玩家端）的雀庄式对局记录系统",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node test/run-tests.js",
+    "sim": "node test/simulate.js",
+    "sim:http": "node test/simulate-http.js",
+    "check": "node test/run-tests.js && node test/simulate.js && node test/simulate-http.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {}
+}

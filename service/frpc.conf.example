@@ -1,0 +1,13 @@
+# 樱花frp 客户端启动参数（把下面这一行改好，然后删掉本行注释）
+#
+# 格式：  -f <访问密钥>:<隧道ID>
+#
+# 访问密钥：登录 https://www.natfrp.com/user/ 点「查看访问密钥」复制
+# 隧道 ID ：在 https://www.natfrp.com/tunnel/ 创建隧道后，列表里那一串数字
+#
+# 举例（把示例值换成你自己的）：
+#   -f wdnmdtoken6666666:114514
+#
+# 改好这一行之后，运行 service\restart.cmd 让守护进程重新拉起。
+# 没改之前（这一行还是以 # 开头）守护进程会跳过内网穿透，不影响局域网使用。
+# -f your-token:your-tunnel-id

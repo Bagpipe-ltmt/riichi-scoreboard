@@ -1,0 +1,19 @@
+# ---- 运行时数据与密钥：绝对不要提交 ----
+data/
+runtime/
+*.key
+*.crt
+*.pem
+service/frpc.ini
+
+# ---- 日志与进程文件 ----
+*.log
+*.pid
+
+# ---- 依赖与系统垃圾 ----
+node_modules/
+__pycache__/
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
