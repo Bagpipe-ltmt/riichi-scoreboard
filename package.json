@@ -1,6 +1,6 @@
 {
   "name": "riichi-scoreboard",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "立直麻将 场风盘 —— 5 台移动设备（1 台场风盘 + 4 台玩家端）的雀庄式对局记录系统",
   "main": "server.js",
   "license": "MIT",
