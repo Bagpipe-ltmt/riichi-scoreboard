@@ -1,0 +1,30 @@
+; 樱花frp 客户端配置示例
+;
+; 用法：把这个文件复制成同目录下的 frpc.ini，再把 <尖括号> 里的值换成你自己的。
+;       没建 frpc.ini（或没放 runtime\frpc.exe）时，守护进程会跳过内网穿透，
+;       局域网 / Tailscale 用法完全不受影响。
+;
+; 访问密钥：登录 https://www.natfrp.com/user/ 点「复制访问密钥」
+; 节点地址：建隧道时选的那个节点，在 https://www.natfrp.com/tunnel/ 隧道详情里看
+; 远程端口：建隧道时分配的端口
+;
+; 改完运行 service\restart.cmd，然后 service\status.cmd 确认「隧道启动成功」。
+
+[common]
+user = <你的访问密钥，形如 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx>
+sakura_mode = true
+login_fail_exit = false
+server_addr = <节点地址，形如 frp-hat.com>
+server_port = <节点端口，形如 8088>
+disable_log_color = true
+
+[riichi_scoreboard]
+type = tcp
+local_ip = 127.0.0.1
+local_port = 8080
+remote_port = <远程端口>
+; 国内节点禁止明文 HTTP，必须启用自动 HTTPS：
+; auto = 用节点域名自签证书；绑定子域名后会自动改用有效证书
+auto_https = auto
+; 下面这行只是注释，给 urls.js / status.cmd 打印公网地址用
+# public: www.<你的子域名>:<远程端口>

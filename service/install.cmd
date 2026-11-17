@@ -9,12 +9,20 @@ if errorlevel 1 (
 )
 
 echo [1/4] 注册计划任务 RiichiScoreboard ...
-schtasks /Create /TN "RiichiScoreboard" /XML "%~dp0task.xml" /F
+set "TASKXML="
+for /f "usebackq delims=" %%X in (`powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0install-task.ps1"`) do set "TASKXML=%%X"
+if not defined TASKXML (
+  echo [错误] 生成计划任务配置失败（task.xml / install-task.ps1 缺失？）。
+  pause
+  exit /b 1
+)
+schtasks /Create /TN "RiichiScoreboard" /XML "%TASKXML%" /F
 if errorlevel 1 (
   echo [错误] 计划任务注册失败。
   pause
   exit /b 1
 )
+del "%TASKXML%" >nul 2>&1
 
 echo [2/4] 添加防火墙入站规则 TCP 8080 ...
 netsh advfirewall firewall delete rule name="RiichiScoreboard 8080" >nul 2>&1

@@ -17,3 +17,7 @@ __pycache__/
 Thumbs.db
 .vscode/
 .idea/
+# ---- 日志轮转 / 可执行文件（防止误提交 runtime）----
+*.log.*
+*.exe
+service/*.tmp

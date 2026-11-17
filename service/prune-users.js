@@ -3,8 +3,8 @@
 /**
  * 批量删账号，只留下你点名要保留的那几个。
  *
- *   node service/prune-users.js --dry-run Bagpipe BagpipeQAQ     # 先看会删谁（不动数据）
- *   node service/prune-users.js Bagpipe BagpipeQAQ               # 真删
+ *   node service/prune-users.js --dry-run 昵称A 昵称B   # 先看会删谁（不动数据）
+ *   node service/prune-users.js 昵称A 昵称B             # 真删
  *
  * 参数：
  *   --dry-run          只打印，不写盘

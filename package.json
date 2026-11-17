@@ -1,9 +1,21 @@
 {
   "name": "riichi-scoreboard",
   "version": "1.0.0",
-  "private": true,
-  "description": "立直麻将 场风盘 —— 5台移动设备（1台场风盘 + 4台玩家端）的雀庄式对局记录系统",
+  "description": "立直麻将 场风盘 —— 5 台移动设备（1 台场风盘 + 4 台玩家端）的雀庄式对局记录系统",
   "main": "server.js",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Bagpipe-ltmt/riichi-scoreboard.git"
+  },
+  "keywords": [
+    "mahjong",
+    "riichi",
+    "scoreboard",
+    "nodejs",
+    "zero-dependency",
+    "sse"
+  ],
   "scripts": {
     "start": "node server.js",
     "test": "node test/run-tests.js",
